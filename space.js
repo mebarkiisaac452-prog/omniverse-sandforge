@@ -2,8 +2,8 @@
 =================================================
 OMNIVERSE SANDFORGE
 space.js
-Partie 1 : Space Engine
-Version 0.1
+Version Sandboxels
+Partie 1 : Éléments cosmiques
 =================================================
 */
 
@@ -11,325 +11,343 @@ Version 0.1
 runAfterLoad(function(){
 
 
-    if(!window.Omniverse){
+if(typeof elements === "undefined"){
 
+    console.error(
+        "Sandboxels elements introuvable"
+    );
 
-        console.error(
-            "Omniverse doit être chargé avant Space Engine"
-        );
+    return;
 
-
-        return;
-
-
-    }
+}
 
 
 
-    /*
-    ===============================================
-    CONFIGURATION ESPACE
-    ===============================================
-    */
+/*
+===============================================
+🌌 CATÉGORIE ESPACE
+===============================================
+*/
 
 
-    Omniverse.space = {};
+if(typeof categoryLists !== "undefined"){
 
+    categoryLists.space = [];
 
-    Omniverse.space.objects = {};
-
-
-    Omniverse.space.galaxies = {};
-
-
-    Omniverse.space.systems = {};
+}
 
 
 
-    /*
-    ===============================================
-    CREER UN OBJET SPATIAL
-    ===============================================
-    */
+/*
+===============================================
+🌑 POUSSIÈRE COSMIQUE
+===============================================
+*/
 
 
-    Omniverse.space.createObject = function(id,data){
+elements.cosmic_dust = {
+
+    color:"#555577",
+
+    behavior:behaviors.POWDER,
+
+    category:"space",
+
+    state:"solid",
+
+    density:500,
+
+    temp:20,
+
+    description:
+    "Poussière provenant des profondeurs de l'espace."
+
+};
 
 
 
-        if(
-        Omniverse.space.objects[id]
-        ){
+/*
+===============================================
+⭐ MATIÈRE STELLAIRE
+===============================================
+*/
 
 
-            console.warn(
-                "Objet spatial déjà existant :",
-                id
+elements.star_matter = {
+
+    color:"#ffaa22",
+
+    behavior:behaviors.LIQUID,
+
+    category:"space",
+
+    state:"liquid",
+
+    density:5000,
+
+    temp:5000,
+
+    reactions:{
+
+        cosmic_dust:{
+
+            elem1:"star_core"
+
+        }
+
+    },
+
+
+    description:
+    "Matière concentrée utilisée pour former des étoiles."
+
+};
+
+
+
+
+/*
+===============================================
+🔥 COEUR D'ÉTOILE
+===============================================
+*/
+
+
+elements.star_core = {
+
+    color:"#ffffff",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:10000,
+
+    temp:10000,
+
+
+    tick:function(pixel){
+
+
+        pixel.temp += 10;
+
+
+    },
+
+
+    description:
+    "Le centre brûlant d'une étoile."
+
+};
+
+
+
+
+/*
+===============================================
+🕳️ MATIÈRE DU TROU NOIR
+===============================================
+*/
+
+
+elements.black_hole_matter = {
+
+    color:"#080008",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:999999,
+
+
+    tick:function(pixel){
+
+
+        if(pixel.x && pixel.y){
+
+
+            deletePixel(
+                pixel.x,
+                pixel.y
             );
-
-
-            return;
 
 
         }
 
 
+    },
 
-        Omniverse.space.objects[id] = {
 
+    description:
+    "Une matière tellement dense qu'elle absorbe tout."
 
-            id:id,
+};
 
 
-            name:
-            data.name || id,
 
 
-            type:
-            data.type || "unknown",
+/*
+===============================================
+⚫ MATIÈRE NOIRE
+===============================================
+*/
 
 
-            mass:
-            data.mass ?? 1,
+elements.dark_matter = {
 
+    color:"#111122",
 
-            size:
-            data.size ?? 1,
+    behavior:behaviors.POWDER,
 
+    category:"space",
 
-            position:
-            data.position || {
+    density:3000,
 
-                x:0,
+    temp:-200,
 
-                y:0,
 
-                z:0
+    reactions:{
 
-            },
 
+        radiation:{
 
-            temperature:
-            data.temperature ?? 0,
+            elem1:"energy_particle"
 
+        }
 
-            gravity:
-            data.gravity ?? 0,
 
+    },
 
-            description:
-            data.description || ""
 
+    description:
+    "Une matière mystérieuse de l'univers."
 
-        };
+};
 
 
 
-        console.log(
-            "🌌 Objet spatial créé :",
-            id
-        );
 
+/*
+===============================================
+⚡ PARTICULE D'ÉNERGIE
+===============================================
+*/
 
-    };
 
+elements.energy_particle = {
 
+    color:"#00ffff",
 
-    /*
-    ===============================================
-    CREER UNE PLANETE
-    ===============================================
-    */
+    behavior:behaviors.GAS,
 
+    category:"space",
 
-    Omniverse.space.createPlanet = function(id,data){
+    density:1,
 
+    temp:10000,
 
 
-        data.type = "planet";
+    description:
+    "Une particule énergétique cosmique."
 
+};
 
-        Omniverse.space.createObject(
-            id,
-            data
-        );
 
 
-    };
 
+/*
+===============================================
+☢️ RADIATION COSMIQUE
+===============================================
+*/
 
 
-    /*
-    ===============================================
-    CREER UNE ETOILE
-    ===============================================
-    */
+elements.cosmic_radiation = {
 
+    color:"#ff00ff",
 
-    Omniverse.space.createStar = function(id,data){
+    behavior:behaviors.GAS,
 
+    category:"space",
 
+    density:0.1,
 
-        data.type = "star";
+    temp:500,
 
 
-        Omniverse.space.createObject(
-            id,
-            data
-        );
+    description:
+    "Radiation venant des étoiles lointaines."
 
+};
 
-    };
 
 
 
-    /*
-    ===============================================
-    CREER UN TROU NOIR
-    ===============================================
-    */
-
-
-    Omniverse.space.createBlackHole = function(id,data){
-
-
-
-        data.type = "black_hole";
-
-
-        data.gravity =
-        data.gravity ?? 1000;
-
-
-
-        Omniverse.space.createObject(
-            id,
-            data
-        );
-
-
-    };
-
-
-
-    /*
-    ===============================================
-    RECUPERER UN OBJET
-    ===============================================
-    */
-
-
-    Omniverse.space.getObject = function(id){
-
-
-        return Omniverse.space.objects[id];
-
-
-    };
-
-
-
-    /*
-    ===============================================
-    SUPPRIMER UN OBJET
-    ===============================================
-    */
-
-
-    Omniverse.space.removeObject = function(id){
-
-
-
-        delete Omniverse.space.objects[id];
-
-
-
-        console.log(
-            "🌌 Objet supprimé :",
-            id
-        );
-
-
-    };
-
-
-
-    console.log(
-        "🚀 Space Engine chargé"
-    );
+console.log(
+"🌌 Space.js Sandboxels chargé"
+);
 
 /*
 =================================================
 OMNIVERSE SANDFORGE
 space.js
-Partie 2 : Systèmes solaires et galaxies
+Partie 2 : Phénomènes cosmiques
+Sandboxels
 =================================================
 */
 
 
 /*
 ===============================================
-☀️ CREER UN SYSTEME SOLAIRE
+⭐ ÉTOILE
 ===============================================
 */
 
 
-Omniverse.space.createSystem = function(id,data){
+elements.cosmic_star = {
+
+    color:"#ffaa00",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:8000,
+
+    temp:6000,
 
 
-    if(Omniverse.space.systems[id]){
-
-        console.warn(
-            "Système déjà existant :",
-            id
-        );
-
-        return;
-
-    }
+    tick:function(pixel){
 
 
-    Omniverse.space.systems[id] = {
+        pixel.temp += 5;
 
 
-        id:id,
+
+        if(pixel.temp > 12000){
 
 
-        name:
-        data.name || id,
+            changePixel(
+                pixel,
+                "supernova"
+            );
 
 
-        star:
-        data.star || null,
+        }
 
 
-        planets:
-        data.planets || [],
+    },
 
 
-        position:
-        data.position || {
-
-            x:0,
-
-            y:0,
-
-            z:0
-
-        },
-
-
-        description:
-        data.description || ""
-
-    };
-
-
-    console.log(
-        "☀️ Système solaire créé :",
-        id
-    );
-
+    description:
+    "Une étoile miniature contenant une énergie énorme."
 
 };
 
@@ -338,60 +356,48 @@ Omniverse.space.createSystem = function(id,data){
 
 /*
 ===============================================
-🪐 AJOUTER UNE PLANETE A UN SYSTEME
+💥 SUPERNOVA
 ===============================================
 */
 
 
-Omniverse.space.addPlanetToSystem = function(system,planet){
+elements.supernova = {
+
+    color:"#ff4400",
+
+    behavior:behaviors.EXPLOSION,
+
+    category:"space",
+
+    state:"energy",
+
+    temp:15000,
 
 
-
-    let solar =
-    Omniverse.space.systems[system];
+    tick:function(pixel){
 
 
-
-    if(!solar){
-
-
-        console.error(
-            "Système inconnu :",
-            system
-        );
+        if(Math.random()<0.05){
 
 
-        return false;
-
-    }
-
-
-
-    if(
-    !Omniverse.space.objects[planet]
-    ){
-
-
-        console.error(
-            "Planète inconnue :",
-            planet
-        );
+            createPixel(
+                "cosmic_radiation",
+                pixel.x+
+                Math.floor(
+                    Math.random()*3-1
+                ),
+                pixel.y
+            );
 
 
-        return false;
-
-    }
+        }
 
 
-
-    solar.planets.push(
-        planet
-    );
+    },
 
 
-
-    return true;
-
+    description:
+    "Explosion finale d'une étoile."
 
 };
 
@@ -400,79 +406,80 @@ Omniverse.space.addPlanetToSystem = function(system,planet){
 
 /*
 ===============================================
-🌌 CREER UNE GALAXIE
+🕳️ TROU NOIR
 ===============================================
 */
 
 
-Omniverse.space.createGalaxy = function(id,data){
+elements.black_hole = {
+
+    color:"#000000",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    density:999999,
+
+    state:"solid",
 
 
 
-    if(
-    Omniverse.space.galaxies[id]
-    ){
-
-
-        console.warn(
-            "Galaxie déjà existante :",
-            id
-        );
-
-
-        return;
-
-    }
+    tick:function(pixel){
 
 
 
-    Omniverse.space.galaxies[id] = {
+        for(
+            let x=-2;
+            x<=2;
+            x++
+        ){
+
+            for(
+                let y=-2;
+                y<=2;
+                y++
+            ){
 
 
-        id:id,
-
-
-        name:
-        data.name || id,
-
-
-        systems:
-        data.systems || [],
-
-
-        size:
-        data.size ?? 1000,
-
-
-        type:
-        data.type || "spiral",
-
-
-        position:
-        data.position || {
-
-            x:0,
-
-            y:0,
-
-            z:0
-
-        },
-
-
-        description:
-        data.description || ""
-
-
-    };
+                let target =
+                pixelMap[
+                    pixel.x+x
+                ] &&
+                pixelMap[
+                    pixel.x+x
+                ][
+                    pixel.y+y
+                ];
 
 
 
-    console.log(
-        "🌌 Galaxie créée :",
-        id
-    );
+                if(
+                target &&
+                target.element !==
+                "black_hole"
+                ){
 
+
+                    deletePixel(
+                        pixel.x+x,
+                        pixel.y+y
+                    );
+
+
+                }
+
+
+            }
+
+        }
+
+
+    },
+
+
+    description:
+    "Une singularité qui absorbe les pixels proches."
 
 };
 
@@ -481,53 +488,41 @@ Omniverse.space.createGalaxy = function(id,data){
 
 /*
 ===============================================
-⭐ AJOUTER UN SYSTEME A UNE GALAXIE
+🌫️ NÉBULEUSE
 ===============================================
 */
 
 
-Omniverse.space.addSystemToGalaxy = function(galaxy,system){
+elements.nebula = {
+
+    color:"#aa55ff",
+
+    behavior:behaviors.GAS,
+
+    category:"space",
+
+    density:5,
+
+    temp:-100,
 
 
-
-    let gal =
-    Omniverse.space.galaxies[galaxy];
+    reactions:{
 
 
-
-    if(!gal){
-
-        console.error(
-            "Galaxie inconnue"
-        );
-
-        return false;
-
-    }
+        cosmic_dust:{
 
 
-
-    if(
-    !Omniverse.space.systems[system]
-    ){
-
-        console.error(
-            "Système inconnu"
-        );
-
-        return false;
-
-    }
+            elem1:"star_matter"
 
 
-
-    gal.systems.push(
-        system
-    );
+        }
 
 
-    return true;
+    },
 
+
+    description:
+    "Nuage cosmique où naissent les étoiles."
 
 };
 
@@ -536,344 +531,237 @@ Omniverse.space.addSystemToGalaxy = function(galaxy,system){
 
 /*
 ===============================================
-🔍 INFORMATIONS ESPACE
+🌌 GALAXIE
 ===============================================
 */
 
 
-Omniverse.space.getGalaxy = function(id){
+elements.galaxy_cluster = {
 
-    return Omniverse.space.galaxies[id];
+    color:"#4444ff",
+
+    behavior:behaviors.POWDER,
+
+    category:"space",
+
+    density:100,
+
+
+    tick:function(pixel){
+
+
+        if(Math.random()<0.01){
+
+
+            createPixel(
+                "cosmic_star",
+                pixel.x,
+                pixel.y-1
+            );
+
+
+        }
+
+
+    },
+
+
+    description:
+    "Un fragment de galaxie contenant des étoiles."
 
 };
 
 
 
-Omniverse.space.getSystem = function(id){
 
-    return Omniverse.space.systems[id];
+/*
+===============================================
+🌀 ANOMALIE SPATIALE
+===============================================
+*/
+
+
+elements.space_anomaly = {
+
+    color:"#00ff88",
+
+    behavior:behaviors.GAS,
+
+    category:"space",
+
+    density:1,
+
+    temp:0,
+
+
+    tick:function(pixel){
+
+
+        if(Math.random()<0.02){
+
+
+            pixel.temp += 500;
+
+        }
+
+
+    },
+
+
+    description:
+    "Une zone où les lois physiques changent."
 
 };
+
 
 
 
 console.log(
-"🌌 Systèmes solaires et galaxies chargés"
+"🌌 Phénomènes cosmiques chargés"
 );
 /*
 =================================================
 OMNIVERSE SANDFORGE
 space.js
-Partie 3 : Générateur d'univers
+Partie 3 : Portails et dimensions spatiales
+Sandboxels
 =================================================
 */
 
 
 /*
 ===============================================
-🎲 GENERATEUR ALEATOIRE
+🌀 PORTAIL SPATIAL DE BASE
 ===============================================
 */
 
 
-Omniverse.space.random = function(min,max){
+elements.space_portal = {
 
-    return Math.floor(
-        Math.random()*(max-min+1)
-    )+min;
+    color:"#00ffff",
 
-};
+    behavior:behaviors.WALL,
 
+    category:"space",
 
+    state:"solid",
 
-/*
-===============================================
-⭐ GENERER UNE ETOILE ALEATOIRE
-===============================================
-*/
+    movable:false,
 
 
-Omniverse.space.generateStar = function(id){
+    portalTarget:"void",
 
 
-    let types = [
-
-        "yellow_star",
-        "blue_giant",
-        "red_giant",
-        "white_dwarf"
-
-    ];
-
-
-    let type =
-    types[
-        Math.floor(
-            Math.random()*types.length
-        )
-    ];
-
-
-
-    Omniverse.space.createStar(id,{
-
-        name:id,
-
-        mass:
-        Omniverse.space.random(10,1000),
-
-
-        size:
-        Omniverse.space.random(1,20),
-
-
-        temperature:
-        Omniverse.space.random(2000,15000),
-
-
-        description:
-        "Une étoile générée automatiquement."
-
-    });
-
-
-    return id;
-
-};
-
-
-
-/*
-===============================================
-🪐 GENERER UNE PLANETE ALEATOIRE
-===============================================
-*/
-
-
-Omniverse.space.generatePlanet = function(id){
-
-
-    let worlds = [
-
-        "rocky",
-
-        "gas",
-
-        "ice",
-
-        "ocean",
-
-        "volcanic"
-
-    ];
-
-
-    let type =
-    worlds[
-        Math.floor(
-            Math.random()*worlds.length
-        )
-    ];
-
-
-
-    Omniverse.space.createPlanet(id,{
-
-
-        name:id,
-
-
-        mass:
-        Omniverse.space.random(1,500),
-
-
-        size:
-        Omniverse.space.random(1,15),
-
-
-        temperature:
-        Omniverse.space.random(
-            -200,
-            500
-        ),
-
-
-        gravity:
-        Math.random()*3,
-
-
-        description:
-        "Planète de type "+type
-
-
-    });
-
-
-
-    return id;
-
-};
-
-
-
-
-/*
-===============================================
-🌌 GENERER UNE GALAXIE
-===============================================
-*/
-
-
-Omniverse.space.generateGalaxy = function(id){
-
-
-
-    let galaxyTypes = [
-
-        "spiral",
-
-        "elliptical",
-
-        "irregular"
-
-    ];
-
-
-
-    let galaxyType =
-    galaxyTypes[
-        Math.floor(
-            Math.random()
-            *
-            galaxyTypes.length
-        )
-    ];
-
-
-
-    Omniverse.space.createGalaxy(id,{
-
-
-        name:id,
-
-
-        type:
-        galaxyType,
-
-
-        size:
-        Omniverse.space.random(
-            1000,
-            100000
-        ),
-
-
-        description:
-        "Galaxie générée automatiquement."
-
-
-    });
-
-
-
-    let systems =
-    Omniverse.space.random(
-        5,
-        50
-    );
-
-
-
-    for(
-        let i=0;
-        i<systems;
-        i++
-    ){
-
-
-        let systemID =
-        id+"_system_"+i;
-
-
-
-        let starID =
-        systemID+"_star";
-
-
-
-        Omniverse.space.generateStar(
-            starID
-        );
-
-
-
-        Omniverse.space.createSystem(
-            systemID,
-            {
-
-            name:
-            systemID,
-
-
-            star:
-            starID
-
-            }
-        );
-
-
-
-        let planets =
-        Omniverse.space.random(
-            1,
-            12
-        );
-
+    tick:function(pixel){
 
 
         for(
-            let p=0;
-            p<planets;
-            p++
+            let x=-1;
+            x<=1;
+            x++
         ){
 
-
-            let planetID =
-            systemID+"_planet_"+p;
-
-
-            Omniverse.space.generatePlanet(
-                planetID
-            );
+            for(
+                let y=-1;
+                y<=1;
+                y++
+            ){
 
 
-            Omniverse.space.addPlanetToSystem(
-                systemID,
-                planetID
+                let target =
+                pixelMap[
+                    pixel.x+x
+                ] &&
+                pixelMap[
+                    pixel.x+x
+                ][
+                    pixel.y+y
+                ];
+
+
+
+                if(
+                target &&
+                target.element !==
+                "space_portal"
+                ){
+
+
+                    changePixel(
+
+                        target,
+
+                        "void_energy"
+
+                    );
+
+
+                }
+
+
+            }
+
+        }
+
+
+    },
+
+
+    description:
+    "Un portail reliant plusieurs dimensions."
+
+};
+
+
+
+
+/*
+===============================================
+⚫ PORTAIL VOID
+===============================================
+*/
+
+
+elements.void_portal = {
+
+    color:"#000000",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+
+    portalTarget:"void",
+
+
+
+    tick:function(pixel){
+
+
+        if(Math.random()<0.05){
+
+
+            createPixel(
+
+                "void_energy",
+
+                pixel.x,
+
+                pixel.y-1
+
             );
 
 
         }
 
 
-
-        Omniverse.space.addSystemToGalaxy(
-            id,
-            systemID
-        );
+    },
 
 
-    }
-
-
-
-    console.log(
-        "🌌 Univers généré :",
-        id
-    );
-
-
-    return id;
+    description:
+    "Un portail vers une dimension vide."
 
 };
 
@@ -882,44 +770,978 @@ Omniverse.space.generateGalaxy = function(id){
 
 /*
 ===============================================
-🕳️ GENERER UN TROU NOIR
+🟣 PORTAIL QUANTUM
 ===============================================
 */
 
 
-Omniverse.space.generateBlackHole = function(id){
+elements.quantum_portal = {
+
+    color:"#7700ff",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
 
 
-    Omniverse.space.createBlackHole(id,{
+    portalTarget:"quantum",
 
 
-        name:
-        "Trou noir "+id,
+
+    tick:function(pixel){
 
 
-        mass:
-        1000000,
+        if(Math.random()<0.03){
 
 
-        size:
-        50,
+            createPixel(
+
+                "energy_particle",
+
+                pixel.x,
+
+                pixel.y-1
+
+            );
 
 
-        description:
-        "Une singularité cosmique."
+        }
 
 
-    });
+    },
 
 
-    return id;
+    description:
+    "Un portail instable vers une dimension quantique."
 
 };
 
 
 
+
+/*
+===============================================
+♾️ PORTAIL OMNIVERSE
+===============================================
+*/
+
+
+elements.omniverse_portal = {
+
+    color:"#ffffff",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+
+    portalTarget:"omniverse",
+
+
+
+    tick:function(pixel){
+
+
+        if(Math.random()<0.02){
+
+
+            createPixel(
+
+                "space_anomaly",
+
+                pixel.x,
+
+                pixel.y-1
+
+            );
+
+
+        }
+
+
+    },
+
+
+    description:
+    "Un passage vers le cœur du multivers."
+
+};
+
+
+
+
+/*
+===============================================
+⚫ ÉNERGIE DU VIDE
+===============================================
+*/
+
+
+elements.void_energy = {
+
+    color:"#111111",
+
+    behavior:behaviors.GAS,
+
+    category:"space",
+
+    density:0.1,
+
+    temp:-273,
+
+
+    tick:function(pixel){
+
+
+        if(Math.random()<0.01){
+
+
+            deletePixel(
+
+                pixel.x,
+
+                pixel.y
+
+            );
+
+
+        }
+
+
+    },
+
+
+    description:
+    "Énergie provenant d'une dimension vide."
+
+};
+
+
+
+
+/*
+===============================================
+🌌 SYSTEME DE DIMENSION
+===============================================
+*/
+
+
+Omniverse.space.dimensionEffects = {
+
+
+    void:{
+
+
+        gravity:0,
+
+
+        temperature:-273,
+
+
+        radiation:10
+
+
+    },
+
+
+    quantum:{
+
+
+        gravity:-0.5,
+
+
+        temperature:20,
+
+
+        radiation:50
+
+
+    },
+
+
+    omniverse:{
+
+
+        gravity:0,
+
+
+        temperature:0,
+
+
+        radiation:100
+
+
+    }
+
+
+};
+
+
+
+
+Omniverse.space.getDimensionEffect =
+function(id){
+
+
+    return (
+
+        Omniverse.space.dimensionEffects[id]
+
+        ||
+
+        null
+
+    );
+
+
+};
+
+
+
+
 console.log(
-"♾️ Générateur d'univers chargé"
+"🌀 Portails spatiaux chargés"
+);
+/*
+=================================================
+OMNIVERSE SANDFORGE
+space.js
+Partie 4 : Civilisations spatiales
+Structures cosmiques
+Sandboxels
+=================================================
+*/
+
+
+/*
+===============================================
+🛰️ STATION SPATIALE
+===============================================
+*/
+
+
+elements.space_station = {
+
+    color:"#bbbbbb",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:4000,
+
+
+    description:
+    "Une station construite dans l'espace."
+};
+
+
+
+
+/*
+===============================================
+🌐 PLANÈTE ARTIFICIELLE
+===============================================
+*/
+
+
+elements.artificial_planet = {
+
+    color:"#3366aa",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:6000,
+
+
+    tick:function(pixel){
+
+
+        if(Math.random()<0.01){
+
+
+            createPixel(
+
+                "cosmic_dust",
+
+                pixel.x,
+
+                pixel.y-1
+
+            );
+
+
+        }
+
+
+    },
+
+
+    description:
+    "Une planète créée artificiellement par une civilisation avancée."
+
+};
+
+
+
+
+/*
+===============================================
+☀️ SPHÈRE DE DYSON
+===============================================
+*/
+
+
+elements.dyson_sphere = {
+
+    color:"#ffaa33",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:8000,
+
+
+    tick:function(pixel){
+
+
+        if(Math.random()<0.02){
+
+
+            createPixel(
+
+                "energy_particle",
+
+                pixel.x,
+
+                pixel.y-1
+
+            );
+
+
+        }
+
+
+    },
+
+
+    description:
+    "Structure géante entourant une étoile pour absorber son énergie."
+
+};
+
+
+
+
+/*
+===============================================
+🏛️ ARTEFACT COSMIQUE
+===============================================
+*/
+
+
+elements.cosmic_artifact = {
+
+    color:"#00ffff",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:3000,
+
+
+    reactions:{
+
+
+        dark_matter:{
+
+
+            elem1:"energy_particle"
+
+
+        }
+
+
+    },
+
+
+    description:
+    "Une technologie ancienne contenant une énergie inconnue."
+
+};
+
+
+
+
+/*
+===============================================
+🧱 MÉTAL SPATIAL
+===============================================
+*/
+
+
+elements.space_metal = {
+
+    color:"#444444",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:9000,
+
+    tempHigh:5000,
+
+    stateHigh:"star_matter",
+
+
+    description:
+    "Un métal extrêmement résistant trouvé dans l'espace."
+
+};
+
+
+
+
+/*
+===============================================
+💎 CRISTAL COSMIQUE
+===============================================
+*/
+
+
+elements.cosmic_crystal = {
+
+    color:"#aa00ff",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:3500,
+
+
+    tick:function(pixel){
+
+
+        if(Math.random()<0.02){
+
+
+            createPixel(
+
+                "energy_particle",
+
+                pixel.x,
+
+                pixel.y-1
+
+            );
+
+
+        }
+
+
+    },
+
+
+    description:
+    "Un cristal chargé d'énergie cosmique."
+
+};
+
+
+
+
+/*
+===============================================
+🌌 MÉGA STRUCTURE
+===============================================
+*/
+
+
+elements.megastructure = {
+
+    color:"#555555",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:10000,
+
+
+    description:
+    "Une construction gigantesque capable de modifier un système solaire."
+
+};
+
+
+
+
+/*
+===============================================
+🔋 RÉACTEUR COSMIQUE
+===============================================
+*/
+
+
+elements.cosmic_reactor = {
+
+    color:"#00ff00",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:5000,
+
+
+    tick:function(pixel){
+
+
+        if(Math.random()<0.05){
+
+
+            createPixel(
+
+                "energy_particle",
+
+                pixel.x+1,
+
+                pixel.y
+
+            );
+
+
+        }
+
+
+    },
+
+
+    description:
+    "Un générateur utilisant l'énergie des étoiles."
+
+};
+
+
+
+
+console.log(
+"🏛️ Civilisations spatiales chargées"
+);
+/*
+=================================================
+OMNIVERSE SANDFORGE
+space.js
+Partie 5 : Événements cosmiques
+Sandboxels
+=================================================
+*/
+
+
+/*
+===============================================
+💥 IMPACT PLANÉTAIRE
+===============================================
+*/
+
+
+elements.planet_impact = {
+
+    color:"#ff5500",
+
+    behavior:behaviors.EXPLOSION,
+
+    category:"space",
+
+    state:"energy",
+
+    temp:10000,
+
+
+    description:
+    "Collision entre deux corps célestes."
+
+};
+
+
+
+
+/*
+===============================================
+🪐 PLANÈTE EN FUSION
+===============================================
+*/
+
+
+elements.molten_planet = {
+
+    color:"#ff3300",
+
+    behavior:behaviors.LIQUID,
+
+    category:"space",
+
+    state:"liquid",
+
+    density:6000,
+
+    temp:3000,
+
+
+    tick:function(pixel){
+
+
+        if(Math.random()<0.02){
+
+
+            changePixel(
+
+                pixel,
+
+                "cosmic_dust"
+
+            );
+
+
+        }
+
+
+    },
+
+
+    description:
+    "Une planète détruite devenue un océan de roche fondue."
+
+};
+
+
+
+
+/*
+===============================================
+⭐ NAISSANCE D'ÉTOILE
+===============================================
+*/
+
+
+elements.star_birth = {
+
+    color:"#ffff00",
+
+    behavior:behaviors.GAS,
+
+    category:"space",
+
+    state:"gas",
+
+    temp:1000,
+
+
+    tick:function(pixel){
+
+
+        pixel.temp += 50;
+
+
+
+        if(pixel.temp > 5000){
+
+
+            changePixel(
+
+                pixel,
+
+                "cosmic_star"
+
+            );
+
+
+        }
+
+
+    },
+
+
+    description:
+    "Nuage de matière créant une nouvelle étoile."
+
+};
+
+
+
+
+/*
+===============================================
+🕳️ TROU NOIR SUPERMASSIF
+===============================================
+*/
+
+
+elements.supermassive_black_hole = {
+
+    color:"#000000",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:9999999,
+
+
+    tick:function(pixel){
+
+
+
+        for(
+            let x=-3;
+            x<=3;
+            x++
+        ){
+
+
+            for(
+                let y=-3;
+                y<=3;
+                y++
+            ){
+
+
+                let target =
+                pixelMap[
+                    pixel.x+x
+                ] &&
+                pixelMap[
+                    pixel.x+x
+                ][
+                    pixel.y+y
+                ];
+
+
+
+                if(
+                target &&
+                target.element !==
+                "supermassive_black_hole"
+                ){
+
+
+                    deletePixel(
+
+                        pixel.x+x,
+
+                        pixel.y+y
+
+                    );
+
+
+                }
+
+
+            }
+
+        }
+
+
+    },
+
+
+    description:
+    "Un trou noir capable d'engloutir une galaxie."
+
+};
+
+
+
+
+/*
+===============================================
+🌌 COLLISION DE GALAXIES
+===============================================
+*/
+
+
+elements.galaxy_collision = {
+
+    color:"#ff00ff",
+
+    behavior:behaviors.EXPLOSION,
+
+    category:"space",
+
+    state:"energy",
+
+    temp:20000,
+
+
+    description:
+    "Deux galaxies fusionnent dans une explosion cosmique."
+
+};
+
+
+
+
+/*
+===============================================
+🌠 QUASAR
+===============================================
+*/
+
+
+elements.quasar = {
+
+    color:"#00ffff",
+
+    behavior:behaviors.WALL,
+
+    category:"space",
+
+    state:"solid",
+
+    density:50000,
+
+    temp:50000,
+
+
+    tick:function(pixel){
+
+
+        if(Math.random()<0.05){
+
+
+            createPixel(
+
+                "cosmic_radiation",
+
+                pixel.x,
+
+                pixel.y-1
+
+            );
+
+
+        }
+
+
+    },
+
+
+    description:
+    "Un noyau galactique extrêmement énergétique."
+
+};
+
+
+
+
+/*
+===============================================
+♾️ FIN D'UNIVERS
+===============================================
+*/
+
+
+elements.universe_end = {
+
+    color:"#ffffff",
+
+    behavior:behaviors.GAS,
+
+    category:"space",
+
+    state:"energy",
+
+    temp:0,
+
+
+    tick:function(pixel){
+
+
+
+        if(Math.random()<0.03){
+
+
+            deletePixel(
+
+                pixel.x,
+
+                pixel.y
+
+            );
+
+
+        }
+
+
+    },
+
+
+    description:
+    "Une anomalie représentant la fin d'une réalité."
+
+};
+
+
+
+
+/*
+===============================================
+🌌 BIG BANG
+===============================================
+*/
+
+
+elements.big_bang_energy = {
+
+    color:"#ffffff",
+
+    behavior:behaviors.EXPLOSION,
+
+    category:"space",
+
+    state:"energy",
+
+    temp:999999,
+
+
+    description:
+    "Énergie primordiale de création d'un univers."
+
+};
+
+
+
+
+console.log(
+"🌠 Événements cosmiques chargés"
 );
 
 });
